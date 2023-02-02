@@ -9,11 +9,22 @@ const contactsSchema = Joi.object({
     })
     .required(),
   phone: Joi.string()
-    .length(10)
-    .pattern(/^[0-9]+$/)
+    .regex(/^(\s*)?(\+)?([- _():=+]?\d[- _():=+]?){10,14}(\s*)?$/)
+    .messages({
+      "string.pattern.base":
+        "Invalid number: must contain between 10 and 14 characters; phone number must be digits and can contain spaces, dashes, parentheses and can start with +.",
+    })
     .required(),
+  favorite: Joi.boolean().default("false").optional(),
+});
+
+const contactStatusSchema = Joi.object({
+  favorite: Joi.boolean().required().messages({
+    "any.required": "Missing field favorite",
+  }),
 });
 
 module.exports = {
   contactsSchema,
+  contactStatusSchema,
 };

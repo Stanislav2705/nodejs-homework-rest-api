@@ -1,20 +1,14 @@
 const { HttpError } = require("../helpers");
-const {
-  listContacts,
-  addContact,
-  getContactById,
-  removeContact,
-  updateContact,
-} = require("../models/contacts");
+const { Contact } = require("../models/contacts");
 
 const getContacts = async (req, res) => {
-  const contacts = await listContacts();
+  const contacts = await Contact.find();
   return res.json(contacts);
 };
 
 const getContactsById = async (req, res, next) => {
   const { contactId } = req.params;
-  const contact = await getContactById(contactId);
+  const contact = await Contact.findById(contactId);
 
   if (!contact) {
     return next(HttpError(404, "Not found"));
@@ -24,33 +18,47 @@ const getContactsById = async (req, res, next) => {
 };
 
 const postContact = async (req, res) => {
-  const { body } = req.body;
-  const newContact = await addContact(body);
+  const newContact = await Contact.create(req.body);
 
-  res.status(201).json(newContact);
+  return res.status(201).json(newContact);
 };
 
 const deleteContact = async (req, res, next) => {
   const { contactId } = req.params;
-  const contact = await getContactById(contactId);
+  const contact = await Contact.findById(contactId);
 
   if (!contact) {
     return next(HttpError(404, "Not found"));
   }
 
-  await removeContact(contactId);
-  res.status(200).json({ message: "contact deleted" });
+  await Contact.findByIdAndRemove(contactId);
+  return res.status(200).json({ message: "contact deleted" });
 };
 
 const putContact = async (req, res, next) => {
   const { contactId } = req.params;
-  const updatedContact = await updateContact(contactId, req.body);
+  const updatedContact = await Contact.findByIdAndUpdate(contactId, req.body, {
+    new: true,
+  });
 
   if (!updatedContact) {
     return next(HttpError(404, "Not found"));
   }
 
-  res.status(200).json(updatedContact);
+  return res.status(200).json(updatedContact);
+};
+
+const patchContact = async (req, res, next) => {
+  const { contactId } = req.params;
+  const updatedContact = await Contact.findByIdAndUpdate(contactId, req.body, {
+    new: true,
+  });
+
+  if (!updatedContact) {
+    return next(HttpError(404, "Not found"));
+  }
+
+  return res.status(200).json(updatedContact);
 };
 
 module.exports = {
@@ -59,4 +67,5 @@ module.exports = {
   postContact,
   deleteContact,
   putContact,
+  patchContact,
 };
