@@ -2,7 +2,11 @@ const { HttpError } = require("../helpers");
 const { Contact } = require("../models/contacts");
 
 const getContacts = async (req, res) => {
-  const contacts = await Contact.find();
+  const { _id } = req.user;
+  const { limit = 10, page=1, favorite = [true,false] } = req.query;
+  const skip = (page - 1) * limit;
+
+  const contacts = await Contact.find({owner: _id,favorite}).skip(skip).limit(limit);
   return res.json(contacts);
 };
 
@@ -18,7 +22,8 @@ const getContactsById = async (req, res, next) => {
 };
 
 const postContact = async (req, res) => {
-  const newContact = await Contact.create(req.body);
+  const { _id } = req.user;
+  const newContact = await Contact.create({...req.body, owner: _id});
 
   return res.status(201).json(newContact);
 };

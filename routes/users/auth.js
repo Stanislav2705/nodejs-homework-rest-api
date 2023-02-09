@@ -8,7 +8,7 @@ const { validateBody, auth } = require("../../middlewares");
 const { userSchema, subscriptionSchema } = require("../../schema/userSchema");
 
 
-authRouter.post("/singup",validateBody(userSchema),tryCatchWrapper(signup));
+authRouter.post("/signup",validateBody(userSchema),tryCatchWrapper(signup));
 authRouter.post("/login",validateBody(userSchema), tryCatchWrapper(login));
 authRouter.get("/logout", auth, tryCatchWrapper(logout));
 authRouter.get("/current", auth, tryCatchWrapper(getCurrentUser));

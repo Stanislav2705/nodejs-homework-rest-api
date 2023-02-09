@@ -23,12 +23,9 @@ async function auth(req, res, next) {
       throw HttpError(401, "token type is not valid");
     }
 
-    if (!token) {
-      throw HttpError(401, "no token provaided");
-    }
     const { id } = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findById(id);
-
+    
     if (!user || !user.token) {
       throw HttpError(401, "Not authorized");
     }

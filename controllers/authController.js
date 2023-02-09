@@ -50,6 +50,7 @@ const login = async (req, res, next) => {
   const token = jwt.sign(payload, process.env.JWT_SECRET, {
     expiresIn: "1h",
   });
+  await User.findByIdAndUpdate(storeUser._id, { token });
 
   res.json({
     token,
@@ -77,12 +78,12 @@ const getCurrentUser = async (req, res, next) => {
 };
 
 const changeSubscription = async (req, res, next) => {
-  const { email, subscription } = req.user;
+  const { _id } = req.user;
+  const { subscription } = req.body;
 
-  return res.status(200).json({
-    email,
-    subscription,
-  });
+  const changeSubscription = await User.findByIdAndUpdate(_id, { subscription }, { new: true });
+
+  return res.status(200).json(changeSubscription);
 };
 
 
