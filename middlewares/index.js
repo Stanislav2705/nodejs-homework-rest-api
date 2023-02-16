@@ -1,6 +1,9 @@
 const { HttpError } = require("../helpers");
 const jwt = require("jsonwebtoken");
 const { User } = require("../models/user");
+const multer = require("multer");
+const path = require('path');
+const Jimp = require("jimp");
 
 function validateBody(schema) {
   return (req, res, next) => {
@@ -40,7 +43,37 @@ async function auth(req, res, next) {
   }
 }
 
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.resolve(__dirname, "../tmp"));
+  },
+  filename: (req, file, cb) => {
+    cb(null, file.originalname);
+  },
+  limits: {
+    fileSize: 25721,
+  },
+});
+
+const upload = multer({
+  storage,
+});
+
+const changeSizeAvatar = async (req, res, next) => {
+  const { path } = req.file;
+
+  const avatar = await Jimp.read(path);
+  const changeAvatar = avatar.resize(250, 250);
+
+  await changeAvatar.writeAsync(path);
+
+  next();
+}
+
 module.exports = {
   validateBody,
-  auth
+  auth,
+  upload,
+  changeSizeAvatar
 };
