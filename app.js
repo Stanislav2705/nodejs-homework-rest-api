@@ -33,6 +33,11 @@ app.use((err, req, res, next) => {
       message: "Not found",
     });
   }
+  if (err.code === 403) {
+    return res.status(403).json({
+      message: err.message,
+    });
+  }
   res
     .status(err.status || 500)
     .json({ message: err.message || "Internal server error" });
